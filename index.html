@@ -260,12 +260,9 @@
         try {
             const response = await fetch('pontos.csv?v=' + Date.now());
             const buffer = await response.arrayBuffer();
-            
-            // Tenta UTF-8 primeiro
             let decoder = new TextDecoder('utf-8');
             let data = decoder.decode(buffer);
 
-            // Se encontrar caracteres estranhos (caractere de substituição), muda para Windows-1252
             if (data.includes('')) {
                 decoder = new TextDecoder('windows-1252');
                 data = decoder.decode(buffer);
@@ -274,7 +271,6 @@
             const linhasCSV = data.split(/\r?\n/).filter(l => l.trim() !== "");
 
             pontos = linhasCSV.slice(1).map(linha => {
-                // Detecta se o separador é vírgula ou ponto-e-vírgula
                 const separador = linha.includes(';') ? ';' : ',';
                 const col = linha.split(separador).map(item => 
                     item.trim().replace(/^"|"$/g, '').replace(/""/g, '"')
@@ -317,40 +313,61 @@
 
     function aplicarFiltros() {
         let res = pontos;
+        
+        // Aplica Filtros dos botões
         if (filtroAtivo.turno) res = res.filter(p => p.turno === filtroAtivo.turno);
         if (filtroAtivo.tipo) res = res.filter(p => p.tipo === filtroAtivo.tipo);
         if (filtroAtivo.bairro) res = res.filter(p => p.bairro === filtroAtivo.bairro);
         if (filtroAtivo.linha) res = res.filter(p => p.linha === filtroAtivo.linha);
 
+        // Aplica Busca por texto
         const busca = searchInput.value.toLowerCase();
         if (busca) {
             res = res.filter(p => 
                 p.linha.toLowerCase().includes(busca) || 
                 p.bairro.toLowerCase().includes(busca) || 
-                p.ponto.toLowerCase().includes(busca)
+                p.ponto.toLowerCase().includes(busca) ||
+                p.parada.toLowerCase().includes(busca)
             );
         }
 
         document.getElementById('contador-resultados').innerText = `${res.length} itinerários encontrados`;
         mostrarTabela(res);
-        atualizarMenus();
+        atualizarMenus(busca); // Passa a busca para atualizar os menus
     }
 
-    function atualizarMenus() {
+    function atualizarMenus(textoBusca) {
         const campos = ['turno', 'tipo', 'bairro', 'linha'];
         const ids = { turno: 'dropTurno', tipo: 'dropTipo', bairro: 'dropBairro', linha: 'dropLinha' };
 
         campos.forEach(campoAlvo => {
-            let dadosFiltrados = pontos.filter(p => {
-                return (filtroAtivo.turno === null || campoAlvo === 'turno' || p.turno === filtroAtivo.turno) &&
-                       (filtroAtivo.tipo === null || campoAlvo === 'tipo' || p.tipo === filtroAtivo.tipo) &&
-                       (filtroAtivo.bairro === null || campoAlvo === 'bairro' || p.bairro === filtroAtivo.bairro) &&
-                       (filtroAtivo.linha === null || campoAlvo === 'linha' || p.linha === filtroAtivo.linha);
+            // Filtra os dados considerando a BUSCA e os OUTROS filtros ativos (exceto o próprio campo)
+            let dadosParaMenu = pontos.filter(p => {
+                const atendeBusca = !textoBusca || (
+                    p.linha.toLowerCase().includes(textoBusca) || 
+                    p.bairro.toLowerCase().includes(textoBusca) || 
+                    p.ponto.toLowerCase().includes(textoBusca) ||
+                    p.parada.toLowerCase().includes(textoBusca)
+                );
+
+                const atendeOutrosFiltros = 
+                    (filtroAtivo.turno === null || campoAlvo === 'turno' || p.turno === filtroAtivo.turno) &&
+                    (filtroAtivo.tipo === null || campoAlvo === 'tipo' || p.tipo === filtroAtivo.tipo) &&
+                    (filtroAtivo.bairro === null || campoAlvo === 'bairro' || p.bairro === filtroAtivo.bairro) &&
+                    (filtroAtivo.linha === null || campoAlvo === 'linha' || p.linha === filtroAtivo.linha);
+
+                return atendeBusca && atendeOutrosFiltros;
             });
-            const unicos = [...new Set(dadosFiltrados.map(p => p[campoAlvo]))].filter(v => v !== '-' && v !== "").sort();
+
+            const unicos = [...new Set(dadosParaMenu.map(p => p[campoAlvo]))].filter(v => v !== '-' && v !== "").sort();
             const container = document.getElementById(ids[campoAlvo]);
+            
             if(container) {
-                container.innerHTML = unicos.map(v => `<div class="dropdown-item" onclick="setFiltro('${campoAlvo}', '${v}')">${v}</div>`).join('');
+                if (unicos.length > 0) {
+                    container.innerHTML = unicos.map(v => `<div class="dropdown-item" onclick="setFiltro('${campoAlvo}', '${v}')">${v}</div>`).join('');
+                } else {
+                    container.innerHTML = `<div class="dropdown-item" style="color:var(--secondary); font-style:italic;">Nenhum item</div>`;
+                }
             }
         });
     }
@@ -359,6 +376,7 @@
         filtroAtivo = { turno: null, tipo: null, bairro: null, linha: null };
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         searchInput.value = "";
+        clearBtn.style.display = 'none';
         aplicarFiltros();
     }
 
@@ -371,6 +389,10 @@
 
     function mostrarTabela(lista) {
         const tb = document.getElementById('tableBody');
+        if (lista.length === 0) {
+            tb.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px; color:var(--secondary)">Nenhum resultado encontrado.</td></tr>`;
+            return;
+        }
         tb.innerHTML = lista.map(p => `
             <tr>
                 <td data-label="Turno">${p.turno}</td>
@@ -391,6 +413,3 @@
 
 </body>
 </html>
-
-
-
