@@ -6,18 +6,14 @@
     <title>Consulta Itinerários | Alumar</title>
     <style>
         :root {
-            /* Paleta Alumar / Alcoa */
-            --primary: #165788;    /* Alcoa Blue */
-            --secondary: #818A8F;  /* Alcoa Grey */
+            --primary: #165788;
+            --secondary: #818A8F;
             --white: #FFFFFF;
-            --black: #000000;
-            
             --whatsapp: #25d366;
             --bg: #f8f9fa;
             --card: #ffffff;
             --text: #333333;
             --border: #d1d5db;
-            --muted: #6b7280;
             --accent: #16578810;
             --danger: #dc2626;
             --highlight: #fef9c3;
@@ -29,7 +25,6 @@
                 --card: #1f2937;
                 --text: #f3f4f6;
                 --border: #374151;
-                --muted: #9ca3af;
                 --accent: #16578830;
                 --highlight: #3f3f17;
             }
@@ -57,31 +52,14 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
         
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .logo-alumar {
-            width: 120px;
-            height: auto;
-            object-fit: contain;
-        }
-
-        .header-titles h2 { 
-            font-size: 1.3rem; 
-            margin: 0; 
-            color: var(--primary); 
-            font-weight: 800;
-            letter-spacing: -0.025em;
-        }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .logo-alumar { width: 120px; height: auto; object-fit: contain; }
+        .header-titles h2 { font-size: 1.3rem; margin: 0; color: var(--primary); font-weight: 800; }
         .header-titles p { font-size: 0.8rem; margin: 0; color: var(--secondary); font-weight: 600; text-transform: uppercase; }
 
         .header-description {
             font-size: 0.85rem;
             color: var(--text);
-            line-height: 1.5;
             margin-bottom: 20px;
             background: var(--accent);
             padding: 15px;
@@ -98,7 +76,7 @@
             width: 100%; padding: 14px 45px 14px 15px; 
             border: 2px solid var(--border); border-radius: 8px;
             background: var(--card); color: var(--text); font-size: 15px; 
-            outline: none; box-sizing: border-box; transition: border-color 0.2s;
+            outline: none; box-sizing: border-box;
         }
         .search-box input:focus { border-color: var(--primary); }
         
@@ -110,17 +88,12 @@
         }
 
         .filter-controls { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; }
-
         .filter-btn, #btnLimpar {
             padding: 10px 14px; border-radius: 6px; font-size: 0.75rem;
             cursor: pointer; font-weight: 600; border: 1px solid var(--border);
-            transition: all 0.2s;
         }
         #btnLimpar { background: var(--white); color: var(--danger); border-color: var(--danger); }
-        #btnLimpar:hover { background: var(--danger); color: var(--white); }
-        
-        .filter-btn { background: var(--card); color: var(--text); }
-        .filter-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .filter-btn { background: var(--card); color: var(--text); position: relative; }
         .filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
         .dropdown-content {
@@ -130,45 +103,27 @@
             border-radius: 8px; border: 1px solid var(--border); z-index: 100;
             max-height: 250px; overflow-y: auto; padding: 6px;
         }
-        .dropdown-content.show { display: block; animation: fadeIn 0.2s; }
-        
+        .dropdown-content.show { display: block; }
         .dropdown-item { padding: 10px 12px; cursor: pointer; border-radius: 4px; font-size: 0.85rem; }
         .dropdown-item:hover { background: var(--accent); color: var(--primary); }
 
-        .results-counter {
-            font-size: 0.8rem; color: var(--secondary);
-            margin-bottom: 10px; font-weight: 700; padding-left: 2px;
-        }
+        .results-counter { font-size: 0.8rem; color: var(--secondary); margin-bottom: 10px; font-weight: 700; }
 
         .table-wrapper { 
             background: var(--card); border-radius: 12px; overflow-x: auto; 
-            border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            border: 1px solid var(--border);
         }
         table { width: 100%; border-collapse: collapse; min-width: 900px; }
         th { 
             background: #f3f4f6; padding: 14px; text-align: left; 
             font-size: 0.7rem; color: var(--secondary); text-transform: uppercase; 
-            letter-spacing: 0.05em; border-bottom: 2px solid var(--border);
+            border-bottom: 2px solid var(--border);
         }
         td { padding: 14px; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
-        tr:hover { background-color: var(--accent); }
-
+        
         .badge-parada {
             background: var(--highlight); color: #854d0e; padding: 5px 10px;
-            border-radius: 4px; font-weight: 700; font-size: 0.75rem; border: 1px solid #fef08a;
-        }
-
-        @media (max-width: 900px) {
-            .header { flex-direction: column; text-align: center; }
-            .header-left { flex-direction: column; }
-            .datetime-box { text-align: center; border-top: 1px solid var(--border); padding-top: 10px; width: 100%; }
-            
-            table, thead, tbody, th, td, tr { display: block; }
-            table { min-width: auto; }
-            thead { display: none; }
-            tr { margin-bottom: 15px; border: 1px solid var(--border); border-radius: 12px; padding: 10px; }
-            td { display: flex; justify-content: space-between; align-items: center; padding: 8px 5px; border: none; }
-            td::before { content: attr(data-label); font-weight: 700; color: var(--secondary); font-size: 0.7rem; text-transform: uppercase; }
+            border-radius: 4px; font-weight: 700; font-size: 0.75rem;
         }
 
         .btn-share {
@@ -185,6 +140,17 @@
         }
         @keyframes spin { 100% { transform: rotate(360deg); } }
         .hidden { display: none !important; }
+
+        @media (max-width: 900px) {
+            .header { flex-direction: column; text-align: center; }
+            .datetime-box { text-align: center; border-top: 1px solid var(--border); padding-top: 10px; width: 100%; }
+            table, thead, tbody, th, td, tr { display: block; }
+            table { min-width: auto; }
+            thead { display: none; }
+            tr { margin-bottom: 15px; border: 1px solid var(--border); border-radius: 12px; padding: 10px; }
+            td { display: flex; justify-content: space-between; align-items: center; padding: 8px 5px; border: none; }
+            td::before { content: attr(data-label); font-weight: 700; color: var(--secondary); font-size: 0.7rem; text-transform: uppercase; }
+        }
     </style>
 </head>
 <body>
@@ -205,7 +171,7 @@
     </div>
 
     <div class="header-description">
-        <strong>Manual:</strong> Utilize os filtros abaixo para localizar sua rota. Ao encontrar seu ponto de embarque, clique no botão <strong>📲 Enviar</strong> para notificar automaticamente o setor de transporte via WhatsApp.
+        <strong>Manual:</strong> Utilize os filtros abaixo. Ao encontrar seu ponto, clique em <strong>📲 Enviar</strong> para notificar o transporte via WhatsApp.
     </div>
 
     <div class="search-box">
@@ -262,7 +228,6 @@
 <script>
     let pontos = [];
     let filtroAtivo = { turno: null, tipo: null, bairro: null, linha: null };
-
     const searchInput = document.getElementById('search');
     const clearBtn = document.getElementById('clearSearch');
 
@@ -293,18 +258,28 @@
 
     async function carregarCSV() {
         try {
-            // Adicionado timestamp para evitar cache do navegador durante atualizações do arquivo
             const response = await fetch('pontos.csv?v=' + Date.now());
             const buffer = await response.arrayBuffer();
             
-            // CORREÇÃO DOS ACENTOS: 'windows-1252' é o padrão do Excel/Windows para PT-BR
-            const decoder = new TextDecoder('windows-1252');
-            const data = decoder.decode(buffer);
+            // Tenta UTF-8 primeiro
+            let decoder = new TextDecoder('utf-8');
+            let data = decoder.decode(buffer);
+
+            // Se encontrar caracteres estranhos (caractere de substituição), muda para Windows-1252
+            if (data.includes('')) {
+                decoder = new TextDecoder('windows-1252');
+                data = decoder.decode(buffer);
+            }
+
             const linhasCSV = data.split(/\r?\n/).filter(l => l.trim() !== "");
 
             pontos = linhasCSV.slice(1).map(linha => {
-                // CORREÇÃO DA SEPARAÇÃO: Trima espaços e remove aspas extras que o CSV pode conter
-                const col = linha.split(',').map(item => item.trim().replace(/^"|"$/g, ''));
+                // Detecta se o separador é vírgula ou ponto-e-vírgula
+                const separador = linha.includes(';') ? ';' : ',';
+                const col = linha.split(separador).map(item => 
+                    item.trim().replace(/^"|"$/g, '').replace(/""/g, '"')
+                );
+
                 return {
                     turno: col[0] || '-',
                     linha: col[1] || '-',
@@ -319,8 +294,7 @@
             document.getElementById('loader').classList.add('hidden');
             document.getElementById('container-tabela-completo').classList.remove('hidden');
         } catch (e) {
-            console.error(e);
-            document.getElementById('loader').innerHTML = "<span style='color:red'>Erro ao carregar base de dados. Verifique o arquivo pontos.csv</span>";
+            document.getElementById('loader').innerHTML = "<span style='color:red'>Erro ao carregar CSV. Verifique o arquivo.</span>";
         }
     }
 
@@ -349,11 +323,15 @@
         if (filtroAtivo.linha) res = res.filter(p => p.linha === filtroAtivo.linha);
 
         const busca = searchInput.value.toLowerCase();
-        if (busca) res = res.filter(p => Object.values(p).some(v => v.toLowerCase().includes(busca)));
+        if (busca) {
+            res = res.filter(p => 
+                p.linha.toLowerCase().includes(busca) || 
+                p.bairro.toLowerCase().includes(busca) || 
+                p.ponto.toLowerCase().includes(busca)
+            );
+        }
 
-        const contador = document.getElementById('contador-resultados');
-        contador.innerText = res.length === 1 ? "1 itinerário encontrado" : `${res.length} itinerários encontrados`;
-
+        document.getElementById('contador-resultados').innerText = `${res.length} itinerários encontrados`;
         mostrarTabela(res);
         atualizarMenus();
     }
@@ -381,23 +359,18 @@
         filtroAtivo = { turno: null, tipo: null, bairro: null, linha: null };
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         searchInput.value = "";
-        clearBtn.style.display = 'none';
         aplicarFiltros();
     }
 
     function compartilhar(p) {
         const agora = new Date();
-        const dataFormatada = `${String(agora.getDate()).padStart(2, '0')}/${String(agora.getMonth() + 1).padStart(2, '0')}/${agora.getFullYear()}`;
+        const dataFormatada = agora.toLocaleDateString('pt-br');
         const msg = `*ALUMAR - SOLICITAÇÃO DE TRANSPORTE*%0A%0A*Data:* ${dataFormatada}%0A*Linha:* ${p.linha}%0A*Turno:* ${p.turno}%0A*Bairro:* ${p.bairro}%0A*Parada:* ${p.parada}%0A*Viagem:* ${p.tipo}`;
         window.open(`https://api.whatsapp.com/send?phone=5598982380013&text=${msg}`, '_blank');
     }
 
     function mostrarTabela(lista) {
         const tb = document.getElementById('tableBody');
-        if (lista.length === 0) {
-            tb.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:50px; color:var(--secondary)">Nenhuma rota encontrada para os critérios selecionados.</td></tr>`;
-            return;
-        }
         tb.innerHTML = lista.map(p => `
             <tr>
                 <td data-label="Turno">${p.turno}</td>
