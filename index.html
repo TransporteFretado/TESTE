@@ -45,7 +45,6 @@
 
         .container { max-width: 1100px; margin: 0 auto; }
 
-        /* HEADER REFORMULADO */
         .header { 
             display: flex; 
             justify-content: space-between; 
@@ -94,7 +93,6 @@
         #data-extenso { font-size: 0.85rem; font-weight: 700; color: var(--primary); }
         #relogio { font-size: 0.75rem; color: var(--secondary); font-family: monospace; }
 
-        /* BUSCA ESTILIZADA */
         .search-box { position: relative; width: 100%; margin-bottom: 15px; }
         .search-box input {
             width: 100%; padding: 14px 45px 14px 15px; 
@@ -111,7 +109,6 @@
             font-size: 10px; cursor: pointer;
         }
 
-        /* FILTROS */
         .filter-controls { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; }
 
         .filter-btn, #btnLimpar {
@@ -134,7 +131,6 @@
             max-height: 250px; overflow-y: auto; padding: 6px;
         }
         .dropdown-content.show { display: block; animation: fadeIn 0.2s; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
         
         .dropdown-item { padding: 10px 12px; cursor: pointer; border-radius: 4px; font-size: 0.85rem; }
         .dropdown-item:hover { background: var(--accent); color: var(--primary); }
@@ -144,7 +140,6 @@
             margin-bottom: 10px; font-weight: 700; padding-left: 2px;
         }
 
-        /* TABELA PROFISSIONAL */
         .table-wrapper { 
             background: var(--card); border-radius: 12px; overflow-x: auto; 
             border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
@@ -156,7 +151,6 @@
             letter-spacing: 0.05em; border-bottom: 2px solid var(--border);
         }
         td { padding: 14px; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
-        tr:nth-child(even) { background-color: rgba(0,0,0,0.02); }
         tr:hover { background-color: var(--accent); }
 
         .badge-parada {
@@ -164,7 +158,6 @@
             border-radius: 4px; font-weight: 700; font-size: 0.75rem; border: 1px solid #fef08a;
         }
 
-        /* RESPONSIVIDADE */
         @media (max-width: 900px) {
             .header { flex-direction: column; text-align: center; }
             .header-left { flex-direction: column; }
@@ -176,19 +169,13 @@
             tr { margin-bottom: 15px; border: 1px solid var(--border); border-radius: 12px; padding: 10px; }
             td { display: flex; justify-content: space-between; align-items: center; padding: 8px 5px; border: none; }
             td::before { content: attr(data-label); font-weight: 700; color: var(--secondary); font-size: 0.7rem; text-transform: uppercase; }
-            td[data-label="Parada"] {
-                background: var(--accent); margin: 8px -10px; padding: 12px 15px;
-                border-radius: 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
-            }
         }
 
         .btn-share {
             background: var(--whatsapp); color: white; border: none;
             padding: 8px 16px; border-radius: 6px; cursor: pointer;
             display: flex; align-items: center; gap: 8px; font-weight: 700;
-            transition: transform 0.1s;
         }
-        .btn-share:active { transform: scale(0.95); }
 
         #loader { display: flex; flex-direction: column; align-items: center; padding: 50px; }
         .spinner {
@@ -298,7 +285,6 @@
         document.getElementById(id).classList.toggle("show");
     }
 
-    // Fecha dropdown ao clicar fora
     window.onclick = function(event) {
         if (!event.target.matches('.filter-btn')) {
             document.querySelectorAll('.dropdown-content').forEach(d => d.classList.remove('show'));
@@ -307,21 +293,25 @@
 
     async function carregarCSV() {
         try {
-            const response = await fetch('pontos.csv');
+            // Adicionado timestamp para evitar cache do navegador durante atualizações do arquivo
+            const response = await fetch('pontos.csv?v=' + Date.now());
             const buffer = await response.arrayBuffer();
-            const decoder = new TextDecoder('utf-8');
+            
+            // CORREÇÃO DOS ACENTOS: 'windows-1252' é o padrão do Excel/Windows para PT-BR
+            const decoder = new TextDecoder('windows-1252');
             const data = decoder.decode(buffer);
             const linhasCSV = data.split(/\r?\n/).filter(l => l.trim() !== "");
 
             pontos = linhasCSV.slice(1).map(linha => {
-                const col = linha.split(',');
+                // CORREÇÃO DA SEPARAÇÃO: Trima espaços e remove aspas extras que o CSV pode conter
+                const col = linha.split(',').map(item => item.trim().replace(/^"|"$/g, ''));
                 return {
-                    turno: col[0]?.trim() || '-',
-                    linha: col[1]?.trim() || '-',
-                    tipo:  col[2]?.trim() || '-',
-                    bairro: col[3]?.trim() || '-',
-                    ponto:  col[4]?.trim() || '-',
-                    parada: col[5]?.trim() || '-'
+                    turno: col[0] || '-',
+                    linha: col[1] || '-',
+                    tipo:  col[2] || '-',
+                    bairro: col[3] || '-',
+                    ponto:  col[4] || '-',
+                    parada: col[5] || '-'
                 };
             });
 
@@ -329,7 +319,8 @@
             document.getElementById('loader').classList.add('hidden');
             document.getElementById('container-tabela-completo').classList.remove('hidden');
         } catch (e) {
-            document.getElementById('loader').innerHTML = "<span style='color:red'>Erro ao carregar base de dados.</span>";
+            console.error(e);
+            document.getElementById('loader').innerHTML = "<span style='color:red'>Erro ao carregar base de dados. Verifique o arquivo pontos.csv</span>";
         }
     }
 
@@ -341,7 +332,6 @@
     clearBtn.addEventListener('click', () => {
         searchInput.value = '';
         clearBtn.style.display = 'none';
-        searchInput.focus();
         aplicarFiltros();
     });
 
@@ -379,7 +369,7 @@
                        (filtroAtivo.bairro === null || campoAlvo === 'bairro' || p.bairro === filtroAtivo.bairro) &&
                        (filtroAtivo.linha === null || campoAlvo === 'linha' || p.linha === filtroAtivo.linha);
             });
-            const unicos = [...new Set(dadosFiltrados.map(p => p[campoAlvo]))].filter(v => v !== '-').sort();
+            const unicos = [...new Set(dadosFiltrados.map(p => p[campoAlvo]))].filter(v => v !== '-' && v !== "").sort();
             const container = document.getElementById(ids[campoAlvo]);
             if(container) {
                 container.innerHTML = unicos.map(v => `<div class="dropdown-item" onclick="setFiltro('${campoAlvo}', '${v}')">${v}</div>`).join('');
